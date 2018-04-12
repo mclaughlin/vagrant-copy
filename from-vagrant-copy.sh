@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 
 username=$1
 guest_path=$2
