@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 
 direction=$1
 username=$2
