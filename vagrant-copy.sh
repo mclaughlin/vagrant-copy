@@ -1,56 +1,45 @@
 #!/bin/bash
-#set -x
+set -euo pipefail
 
-direction=$1
-username=$2
-orig_path=$3
-dest_path=$4
+PORT=2222
 
-question() {
-    message=$1
-    var=$2
-    echo $message
-    read answer
-    eval ${var}=${answer}
+usage() {
+    echo "Usage: $(basename "$0") [DIRECTION] [USERNAME] [GUEST_PATH] [HOST_PATH]"
+    echo "  DIRECTION: 'to' or 'from'"
+    exit 1
 }
 
-ask_questions() {
-    question 'Would you like to transfer files "to" or "from" the vagrant box?' direction
-    question 'Guest (vagrant) username?' username
-    question 'Guest (vagrant) file path?' guest_path
-    question 'Host (local) file path?' host_path
+prompt() {
+    local message=$1
+    local -n result=$2
+    read -rp "$message " result
 }
 
-set_path() {
-    if [ ! -z $guest_path ] && [ ! -z $host_path ];  
-    then
-        orig_path=$1
-        dest_path=$2
-    fi
+gather_inputs() {
+    prompt 'Transfer "to" or "from" the vagrant box?' direction
+    prompt 'Guest (vagrant) username?' username
+    prompt 'Guest (vagrant) path?' guest_path
+    prompt 'Host (local) path?' host_path
 }
 
 main() {
+    local direction=${1:-}
+    local username=${2:-}
+    local guest_path=${3:-}
+    local host_path=${4:-}
 
-    if [ -z $direction ] ||
-       [ -z $username ] ||
-       [ -z $orig_path ] ||
-       [ -z $dest_path ]
-    then
-        ask_questions
+    if [[ -z "$direction" || -z "$username" || -z "$guest_path" || -z "$host_path" ]]; then
+        gather_inputs
     fi
 
-    if [ $direction = from ]
-    then
-        set_path $guest_path $host_path
-        scp -rP 2222 ${username}@127.0.0.1:${orig_path} ${dest_path}
-    elif [ $direction = to ]
-    then
-        set_path $host_path $guest_path
-        scp -rP 2222 ${orig_path} ${username}@127.0.0.1:${dest_path}
+    if [[ "$direction" == from ]]; then
+        scp -rP "$PORT" "${username}@127.0.0.1:${guest_path}" "$host_path"
+    elif [[ "$direction" == to ]]; then
+        scp -rP "$PORT" "$host_path" "${username}@127.0.0.1:${guest_path}"
     else
-        echo Usage:
-        echo $ /bin/sh ./vagrant-copy.sh [DIRECTION] [USERNAME] [GUEST_PATH] [HOST_PATH]
+        echo "Error: direction must be 'to' or 'from'"
+        usage
     fi
 }
 
-main
+main "$@"

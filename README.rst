@@ -1,27 +1,31 @@
 Vagrant Copy
 ==============================================
 
-from-vagrant-copy.py usage:
+vagrant-copy.sh usage:
 ---------------
 Run this via the shell::
 
-    $ /bin/sh ./from-vagrant-copy.sh [USERNAME] [GUEST_PATH] [HOST_PATH]
-
+    $ /bin/sh ./vagrant-copy.sh [DIRECTION] [USERNAME] [GUEST_PATH] [HOST_PATH]
 
 ...or make sure it has execute permissions::
 
-    ./from-vagrant-copy.sh [USERNAME] [GUEST_PATH] [HOST_PATH]
+    $ ./vagrant-copy.sh [DIRECTION] [USERNAME] [GUEST_PATH] [HOST_PATH]
 
-And without parameters it will prompt for input::
+``DIRECTION`` is either ``to`` or ``from``.
 
-    $ /bin/sh ./from-vagrant-copy.sh
+Copy a file from the vagrant box to the host::
 
-    Vagrant box username?
-    mclaughlin
+    $ ./vagrant-copy.sh from mclaughlin /home/mclaughlin/test/ ./
 
-    Vagrant box (guest) file path?
-    /home/mclaughlin/test/
+Copy a file from the host to the vagrant box::
 
-    Local (host) file path?
-    ./
+    $ ./vagrant-copy.sh to mclaughlin ./test/ /home/mclaughlin/
 
+Without parameters it will prompt for input::
+
+    $ ./vagrant-copy.sh
+
+    Transfer "to" or "from" the vagrant box? from
+    Guest (vagrant) username? mclaughlin
+    Guest (vagrant) path? /home/mclaughlin/test/
+    Host (local) path? ./
